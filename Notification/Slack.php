@@ -5,6 +5,8 @@ namespace Kanboard\Plugin\Slack\Notification;
 use Kanboard\Core\Base;
 use Kanboard\Core\Notification\NotificationInterface;
 use Kanboard\Model\TaskModel;
+use Kanboard\Model\CommentModel;
+use Kanboard\Model\UserMetadataModel;
 
 /**
  * Slack Notification
@@ -77,9 +79,18 @@ class Slack extends Base implements NotificationInterface
             $title = $this->notificationModel->getTitleWithoutAuthor($eventName, $eventData);
         }
 
+        $commentSortingDirection = $this->userMetadataCacheDecorator->get(UserMetadataModel::KEY_COMMENT_SORTING_DIRECTION, 'ASC');
+        $comments = $this->commentModel->getAll($eventData['task']['id'], $commentSortingDirection);
+
+
         $message = '*['.$project['name'].']* ';
         $message .= $title;
         $message .= ' ('.$eventData['task']['title'].')';
+
+        $hoge = explode("XXXXXX", implode("XXXXXX", end($comments)));
+        $message .= "\n-- last comment -----\n"
+        $message .= $hoge[5];
+        $message .= "\n---------------------\n"
 
         $attachment = [];
         if ($this->configModel->get('application_url') !== '') {
