@@ -79,18 +79,20 @@ class Slack extends Base implements NotificationInterface
             $title = $this->notificationModel->getTitleWithoutAuthor($eventName, $eventData);
         }
 
-        $commentSortingDirection = $this->userMetadataCacheDecorator->get(UserMetadataModel::KEY_COMMENT_SORTING_DIRECTION, 'ASC');
-        $comments = $this->commentModel->getAll($eventData['task']['id'], $commentSortingDirection);
-
-
         $message = '*['.$project['name'].']* ';
         $message .= $title;
         $message .= ' ('.$eventData['task']['title'].')';
 
-        $hoge = explode("XXXXXX", implode("XXXXXX", end($comments)));
-        $message .= "\n-- last comment -----\n"
-        $message .= $hoge[5];
-        $message .= "\n---------------------\n"
+        // add t-inoue
+        $commentSortingDirection = $this->userMetadataCacheDecorator->get(UserMetadataModel::KEY_COMMENT_SORTING_DIRECTION, 'ASC');
+        $comments = $this->commentModel->getAll($eventData['task']['id'], $commentSortingDirection);
+        if (count($comments)) {
+            $hoge = explode("XXXXXX", implode("XXXXXX", end($comments)));
+            $message .= "\n- last comment -----\n";
+            $message .= $hoge[5];
+            $message .= "\n--------------------\n";
+        }
+
 
         $attachment = [];
         if ($this->configModel->get('application_url') !== '') {
